@@ -185,17 +185,31 @@ static void * const kMXScrollViewKVOContext = (void*)&kMXScrollViewKVOContext;
             }
             
         } else {
-            //Adjust the observed scrollview's content offset
+	    //Adjust the observed scrollview's content offset
             UIScrollView *scrollView = object;
             _lock = (scrollView.contentOffset.y > -scrollView.contentInset.top);
             
+            if (new.y < old.y && scrollView.contentOffset.y < self.parallaxHeader.scrollOffset && self.contentOffset.y <= self.parallaxHeader.minimumHeight && self.parallaxHeader.scrollOffset > 0) {
+                _lock = NO;
+            }
+            
             //Manage scroll up
             if (self.contentOffset.y < -self.parallaxHeader.minimumHeight && _lock && diff < 0) {
-                [self scrollView:scrollView setContentOffset:old];
+                if (new.y > 0 && old.y < self.parallaxHeader.scrollOffset && -self.contentOffset.y < self.parallaxHeader.height) {
+                    [self scrollView:self setContentOffset:CGPointMake(0, -self.parallaxHeader.height)];
+                } else {
+                    [self scrollView:scrollView setContentOffset:old];
+                }
             }
             //Disable bouncing when scroll down
             if (!_lock && ((self.contentOffset.y > -self.contentInset.top) || self.bounces)) {
-                [self scrollView:scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, -scrollView.contentInset.top)];
+                if (self.parallaxHeader.scrollOffset > 0 && -self.contentOffset.y < self.parallaxHeader.height) {
+                    [self scrollView:scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, -scrollView.contentInset.top + self.parallaxHeader.scrollOffset)];
+                } else if (new.y > 0 && new.y < self.parallaxHeader.scrollOffset && self.parallaxHeader.scrollOffset > 0) {
+                    [self scrollView:self setContentOffset:CGPointMake(0, -self.parallaxHeader.height)];
+                } else {
+                    [self scrollView:scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, -scrollView.contentInset.top)];
+                }
             }
         }
     } else {

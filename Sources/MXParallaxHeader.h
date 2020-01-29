@@ -83,6 +83,12 @@ typedef NS_ENUM(NSInteger, MXParallaxHeaderMode) {
 @property (nonatomic) IBInspectable CGFloat minimumHeight;
 
 /**
+ The offset for scrolling within a tableview.
+ */
+@property (nonatomic) IBInspectable CGFloat scrollOffset;
+
+
+/**
  The parallax header behavior mode.
  */
 @property (nonatomic) MXParallaxHeaderMode mode;
