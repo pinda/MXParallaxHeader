@@ -145,7 +145,9 @@ static void * const kMXScrollViewKVOContext = (void*)&kMXScrollViewKVOContext;
 
 - (void)addObserverToView:(UIScrollView *)scrollView {
     _lock = (scrollView.contentOffset.y > -scrollView.contentInset.top);
-    
+    if (scrollView.contentOffset.y >= 0) {
+        _lock = YES;
+    }
     [scrollView addObserver:self
                  forKeyPath:NSStringFromSelector(@selector(contentOffset))
                     options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew
@@ -211,6 +213,11 @@ static void * const kMXScrollViewKVOContext = (void*)&kMXScrollViewKVOContext;
                     [self scrollView:scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, -scrollView.contentInset.top)];
                 }
             }
+		
+	    if (scrollView.contentOffset.y > 0 && self.parallaxHeader.scrollOffset == 0) {
+                [self scrollView:self setContentOffset:CGPointMake(0, -self.parallaxHeader.minimumHeight)];
+                _lock = YES;
+            }
         }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
@@ -248,12 +255,18 @@ static void * const kMXScrollViewKVOContext = (void*)&kMXScrollViewKVOContext;
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     _lock = NO;
+    if (-scrollView.contentOffset.y >= self.parallaxHeader.minimumHeight) {
+        _lock = YES;
+    }
     [self removeObservedViews];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         _lock = NO;
+	if (-scrollView.contentOffset.y >= self.parallaxHeader.minimumHeight) {
+            _lock = YES;
+        }
         [self removeObservedViews];
     }
 }
