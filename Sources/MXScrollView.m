@@ -145,7 +145,7 @@ static void * const kMXScrollViewKVOContext = (void*)&kMXScrollViewKVOContext;
 
 - (void)addObserverToView:(UIScrollView *)scrollView {
     _lock = (scrollView.contentOffset.y > -scrollView.contentInset.top);
-    if (scrollView.contentOffset.y >= 0) {
+    if (self.parallaxHeader.scrollOffset > 0 && scrollView.contentOffset.y >= self.parallaxHeader.minimumHeight) {
         _lock = YES;
     }
     [scrollView addObserver:self
